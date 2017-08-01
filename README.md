@@ -1,2 +1,3 @@
 # blog-of-django
 这是关于开发博客的代码，使用的是python中的django框架，具体的内容以后慢慢更新
+在我的开发中需要使用mysql数据库，并不是使用的默认的sqlite存储
