@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding=utf-8
 """blog URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -13,14 +15,12 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url,include
-from article import views
-from django.contrib import admin
+from django.conf.urls import url
+from . import views
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^$',views.index,name='index'),
-    #url(r'^index/(?P<pk>[0-9]+)/$',views.detail,name="detail"),
-    #url(r'^archives/(?P<year>[0-9]{4})/(?P<month>[1-9]|1[0-2])/$',views.archives,name="archives"),
-    url(r'^index/',include('article.urls',namespace="Article")),
-    url(r'^comment/',include('comments.urls',namespace="Comment")),
+    url(r'^$',views.IndexView.as_view(),name='index'),
+    url(r'^(?P<pk>[0-9]+)/$',views.detail,name="detail"),
+    url(r'^archives/(?P<year>[0-9]{4})/(?P<month>[1-9]|1[0-2])/$',views.archives,name="archives"),
+    url(r'^category/(?P<pk>[0-9]+)/$',views.category,name="category"),
+    url(r'^search/$',views.search,name="search"),
 ]

@@ -10,22 +10,10 @@ from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 # Create your views here.
 
 class IndexView(ListView):
-    #没有queryset方法直接指定数据库名即可
-    #model = Article
+    model = Article
     template_name = "index.html"
-    #模型数据传递给模板的名字
     context_object_name = "article_list"
     paginate_by = 1
-
-    #重写ListView类中的get_queryset方法,该方法是为了获取Model的列表
-    def get_queryset(self):
-        article_list = Article.objects.all()
-        for article in article_list:
-            article.body = markdown.markdown(article.body,extensions=[
-                        'markdown.extensions.extra',
-                        'markdown.extensions.codehilite',
-                        'markdown.extensions.toc',])
-        return article_list
 
     def get_context_data(self,**kwargs):
         #在类视图中，传递模板变量字典通过get_context_data函数获得，现在复写该方法
@@ -82,8 +70,8 @@ class IndexView(ListView):
         total_pages = paginator.num_pages
 
         #python3中获得分页页码列表，比如分了四页，则是[1,2,3,4]的列表
-        #python2中返回的xrange对象，并且列表，不能做slice操作,需要list转成列表
-        page_range = list(paginator.page_range)
+        #python2中返回的xrange对象，并且列表，不能做slice操作
+        page_range = paginator.page_range
 
         #range操作是从0开始，页码从1开始，所以在后台代码中要把页码的数量-1进行操作
         if page_number == 1:
@@ -92,22 +80,28 @@ class IndexView(ListView):
             #比如分页页码表是[1,2,3,4],那么获得便是right=[2,3]
             #这里只获得了当前页码后连续两个页码，可以更改这个数字获得更多的页码
             #python中利用range函数，并且使用try对右边界进行边界控制
-            right = page_range[page_number:page_number + 1]
+            try:
+                right = range(page_range[page_number],page_range[page_number + 2])
+            except Exception as e:
+                right = range(page_range[page_number], page_range[total_pages-1])
 
             #如果最右边的页码号比最后一页的页码减去1还小
             #说明最右边的页码号和最后一页的页码间还有其他页码，因此需要显示省略号
-            if right[-1] < total_pages - 1:
-                right_has_more = True
+            try:
+                if right[-1] < total_pages - 1:
+                    right_has_more = True
 
-            #如果最右边的页码号比最后一页的页码号小，说明当前页右边的连续页码中不会显示最后一页页码
-            #所以需要显示最后一页的页码，通过last表示
-            if right[-1] < total_pages:
+                #如果最右边的页码号比最后一页的页码号小，说明当前页右边的连续页码中不会显示最后一页页码
+                #所以需要显示最后一页的页码，通过last表示
+                if right[-1] < total_pages:
+                    last = True
+            except Exception as e:
                 last = True
 
         elif page_number == total_pages:
             #如果当前用户获取的是最后一页的页码，那么就不需要右边的数据
             #只需要请求左边的数据，和上面的内容类似
-            left = page_range[(page_number -2) if (page_number - 2) > 0 else 0:page_number - 1]
+            left = range[page_range[(page_number -2) if (page_number - 2) > 0 else 0],page_range[page_number - 1]]
 
             if left[0] > 2:
                 left_has_more = True
@@ -117,13 +111,19 @@ class IndexView(ListView):
 
         else:
             #如果既不是第一页也不是最后一页，那么就需要结合上面的二者
-            left = page_range[(page_number - 2) if (page_number - 2) > 0 else 0:page_number - 1]
-            right = page_range[page_number:page_number + 1]
+            left = range(page_range[(page_number - 2) if (page_number - 2) > 0 else 0],page_range[page_number - 1])
+            try:
+                right = range(page_range[page_number],page_range[page_number + 1])
+            except Exception as e:
+                right = range(page_range[page_number], page_range[total_pages-1])
 
             #是否需要显示最后一页和最后一页前的省略号
-            if right[-1] < total_pages - 1:
-                right_has_more = True
-            if right[-1] < total_pages:
+            try:
+                if right[-1] < total_pages - 1:
+                    right_has_more = True
+                if right[-1] < total_pages:
+                    last = True
+            except Exception as e:
                 last = True
 
 
@@ -131,7 +131,7 @@ class IndexView(ListView):
             if left[0] > 2:
                 left_has_more = True
             if left[0] > 1:
-                first = True
+                left = True
         context = {
             'left':left,
             'right':right,
@@ -168,8 +168,6 @@ def archives(request,year,month):
 
 def detail(request,pk):
     article = get_object_or_404(Article,pk=pk)
-    #增加阅读量
-    article.increase_views()
     article.body = markdown.markdown(article.body,extensions=[
         'markdown.extensions.extra',
         'markdown.extensions.codehilite',

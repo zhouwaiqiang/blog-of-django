@@ -16,6 +16,20 @@ class Article(models.Model):
     likes = models.PositiveIntegerField('点赞数',default=0)
     topped = models.BooleanField('置顶',default=False)
     category = models.ForeignKey('Category',verbose_name='分类',null=True,on_delete=models.SET_NULL)
+    
+    def increase_views(self):
+        self.views += 1
+        #当使用save保存后才会使得阅读量增加保存到数据库
+        #使用update_fields只更改views的值，可以提高效率
+        self.save(update_fields=['views'])
+
+    #保存文章摘要
+    #暂时未解决用model存储
+    def save_abstract(self,*args,**kwargs):
+        #如果没有填写abstract，那么久自动获取正文的前54个字符作为摘要
+        self.abstract = self.body[:54]
+        #调用父类的save方法保存到数据库中
+        super(Article,self).save(*args,**kwargs)
 
     def __unicode__(self):
         return self.title
