@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-from article.models import Article,Category
+from article.models import Article,Category,Tag
 from django import template
 from django.db.models.aggregates import Count
 
@@ -19,3 +19,9 @@ def get_categories():
     #return Category.objects.all()
     category_list = Category.objects.annotate(num_posts=Count('article'))
     return category_list
+
+@register.simple_tag
+def get_tags():
+    #return all Tag
+    tag_list = Tag.objects.annotate(num_posts=Count('article'))
+    return tag_list

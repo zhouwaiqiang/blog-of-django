@@ -5,7 +5,7 @@ from django.views.generic.list import ListView
 import markdown2
 import markdown
 from comments.forms import CommentForm
-from article.models import Article,Category
+from article.models import Article,Category,Tag
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 # Create your views here.
 
@@ -15,7 +15,7 @@ class IndexView(ListView):
     template_name = "index.html"
     #模型数据传递给模板的名字
     context_object_name = "article_list"
-    paginate_by = 1
+    paginate_by = 3
 
     #重写ListView类中的get_queryset方法,该方法是为了获取Model的列表
     def get_queryset(self):
@@ -164,6 +164,11 @@ def index(request):
 
 def archives(request,year,month):
     article_list = Article.objects.filter(created_time__year=year,created_time__month=month).order_by('-created_time')
+    for article in article_list:
+        article.body = markdown.markdown(article.body,extensions=[
+                    'markdown.extensions.extra',
+                    'markdown.extensions.codehilite',
+                    'markdown.extensions.toc',])
     return render(request,"index.html",context={'article_list':article_list})
 
 def detail(request,pk):
@@ -187,6 +192,11 @@ def detail(request,pk):
 def category(request,pk):
     category_name = get_object_or_404(Category,pk=pk)
     article_list = Article.objects.filter(category=category_name).order_by('-created_time')
+    for article in article_list:
+        article.body = markdown.markdown(article.body,extensions=[
+                    'markdown.extensions.extra',
+                    'markdown.extensions.codehilite',
+                    'markdown.extensions.toc',])
     return render(request,"index.html",context={'article_list':article_list})
 
 def search(request):
@@ -197,6 +207,26 @@ def search(request):
             error_msg = "请输入关键词"
             return render(request,'index.html',context={'error_msg':error_msg})
         article_list = Article.objects.filter(title__icontains=question)
+        for article in article_list:
+            article.body = markdown.markdown(article.body,extensions=[
+                        'markdown.extensions.extra',
+                        'markdown.extensions.codehilite',
+                        'markdown.extensions.toc',])
         return render(request,'index.html',context={'error_msg':error_msg,'article_list':article_list})
     else:
         pass
+
+#标签云路由处理
+def tag(request,tag_id):
+    tag_name = get_object_or_404(Tag,pk=tag_id)
+    article_list = Article.objects.filter(tag=tag_name).order_by('-created_time')
+    for article in article_list:
+        article.body = markdown.markdown(article.body,extensions=[
+                    'markdown.extensions.extra',
+                    'markdown.extensions.codehilite',
+                    'markdown.extensions.toc',])
+    return render(request,'index.html',context={'article_list':article_list})
+
+def page_not_found(request):
+    #这是处理400页面的函数
+    return render(request,'404.html')

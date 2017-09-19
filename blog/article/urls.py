@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$',views.detail,name="detail"),
     url(r'^archives/(?P<year>[0-9]{4})/(?P<month>[1-9]|1[0-2])/$',views.archives,name="archives"),
     url(r'^category/(?P<pk>[0-9]+)/$',views.category,name="category"),
+    url(r'^tag/(?P<tag_id>[0-9]+)/$',views.tag,name="tag"),
     url(r'^search/$',views.search,name="search"),
 ]

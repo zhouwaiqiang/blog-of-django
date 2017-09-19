@@ -16,11 +16,12 @@
                                                                       datetime="{{ article.created_time }}">{{ article.created_time }}</time></a></span>
                             <span class="post-author"><a href="#">强</a></span>
                             <span class="comments-link"><a href="#">{{article.comment_set.count}} 评论</a></span>
-                            <span class="views-count"><a href="#">588 阅读</a></span>
+                            <span class="views-count"><a href="#">{{article.views}}阅读</a></span>
                         </div>
                     </header>
                     <div class="entry-content clearfix">
-                        <p>{{ article.body }}</p>
+                        <!--truncatechars:54 表示截取前54个字符,可以采取链式过滤的方法-->
+                        <p>{{ article.body |truncatechars:54 | safe }}</p>
                         <div class="read-more cl-effect-14">
                             <a href="/index/{{article.pk}}" class="more-link">继续阅读 <span class="meta-nav">→</span></a>
                         </div>
@@ -37,18 +38,33 @@
                     <a href="#">下一页</a>
                 </div>
                 -->
-                <div class="pagination">
-                    {% if article_list.has_previous %}
-                    <!--如果还有上一页，则显示上一页按钮-->
-                        <a href="?page={{article_list.previous_page_number}}">上一页</a>
+                {% if is_paginated %}
+                <div class="pagination" >
+                    <ul class="pager">
+                    {% if first %}
+                        <li><a href="?page=1">1</a></li>
                     {% endif %}
-                    <span class="current">
-                        <!--显示当前页面信息-->
-                        第{{ article_list.number }}页/共{{ article_list.paginator.num_pages }}页
-                    </span>
-                    {% if article_list.has_next %}
-                    <!--如果还有下一页，则显示下一页按钮-->
-                        <a href="?page={{article_list.next_page_number}}">下一页</a>
+                    {% if left %}
+                        {% if left_has_more %}
+                            <li> <span>...</span></li>
+                        {% endif %}
+                        {% for i in left %}
+                            <li> <a href="?page={{i}}">{{ i }}</a></li>
+                        {% endfor %}
                     {% endif %}
+                    <a href="?page={{page_obj.number}}" style="color:red">{{page_obj.number}}</a>
+                    {% if right %}
+                        {% for i in right %}
+                            <li><a href="?page={{i}}">{{ i }}</a></li>
+                        {% endfor %}
+                        {% if right_has_more %}
+                            <span>...</span>
+                        {% endif %}
+                    {% endif %}
+                    {% if last %}
+                        <li><a href='?page={{ paginator.num_pages }}'>{{ paginator.num_pages }}</a></li>
+                    {% endif %}
+                    </ul>
                 </div>
+                {% endif %}
     {% endblock main %}
