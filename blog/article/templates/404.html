@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>404</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="{% static 'css/pace.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'css/highlights/github.css' %}">
+    <!-- js -->
+    <script src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/pace.min.js' %}"></script>
+    <script src="{% static 'js/modernizr.custom.js' %}"></script>
+    <style>
+        #main {
+            position: relative;
+            width: 600px;
+            margin: 0 auto;
+            padding-top: 5%;
+            animation: main .8s 1;
+            animation-fill-mode: forwards;
+            -webkit-animation: main .8s 1;
+            -webkit-animation-fill-mode: forwards;
+            -moz-animation: main .8s 1;
+            -moz-animation-fill-mode: forwards;
+            -o-animation: main .8s 1;
+            -o-animation-fill-mode: forwards;
+            -ms-animation: main .8s 1;
+            -ms-animation-fill-mode: forwards;
+        }
+        #main #header h1 {
+            position: relative;
+            display: block;
+            font: 72px 'TeXGyreScholaBold', Arial, sans-serif;
+            color: #0061a5;
+            text-shadow: 2px 2px #f7f7f7;
+            text-align: center;
+        }
+        #main #header h1 span.sub {
+            position: relative;
+            font-size: 21px;
+            top: -20px;
+            padding: 0 10px;
+            font-style: italic;
+        }
+        #main #header h1 span.icon {
+                    position: relative;
+                    display: inline-block;
+                    top: -6px;
+                    margin: 0 10px 5px 0;
+                    background: #0061a5;
+                    width: 50px;
+                    height: 50px;
+                    -moz-box-shadow: 1px 2px white;
+                    -webkit-box-shadow: 1px 2px white;
+                    box-shadow: 1px 2px white;
+                    -webkit-border-radius: 50px;
+                    -moz-border-radius: 50px;
+                    border-radius: 50px;
+                    color: #dfdfdf;
+                    font-size: 46px;
+                    line-height: 48px;
+                    font-weight: bold;
+                    text-align: center;
+                    text-shadow: 0 0;
+        }
+        header {
+              margin: 0;
+              padding: 0;
+              border: 0;
+              font-size: 100%;
+              font: inherit;
+              vertical-align: baseline;
+              outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <header id="header">
+                <h1><span class="icon">!</span>404<span class="sub">page not found</span></h1>
+        </header>
+        <div>
+            <img src="{% static 'img/bighead.jpg'%}" />
+        </div>
+        <div>
+            <button class="btn btn-success btn-lg btn-block"><a href="{% url 'Article:index' %}">返回首页</a></button>
+        </div>
+    </div>
+</body>
+</html>

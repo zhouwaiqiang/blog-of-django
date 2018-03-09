@@ -8,7 +8,7 @@
                 <article class="post post-{{article.pk}}">
                     <header class="entry-header">
                         <h1 class="entry-title">
-                            <a href="/index/{{article.pk}}" >{{ article.title }}</a>
+                            <a href="/index/{{article.pk}}">{{ article.title }}</a>
                         </h1>
                         <div class="entry-meta">
                             <span class="post-category"><a href="#">{{ article.category.name }}</a></span>
@@ -21,8 +21,7 @@
                     </header>
                     <div class="entry-content clearfix">
                         <!--truncatechars:54 表示截取前54个字符,可以采取链式过滤的方法-->
-                        <!--p>{{ article.body |truncatechars:54 | safe }}</p-->
-                        <p>{{ article.abstract }}</p>
+                        <p>{{ article.body |truncatechars:54 | safe }}</p>
                         <div class="read-more cl-effect-14">
                             <a href="/index/{{article.pk}}" class="more-link">继续阅读 <span class="meta-nav">→</span></a>
                         </div>
@@ -40,8 +39,7 @@
                 </div>
                 -->
                 {% if is_paginated %}
-                <div>
-                <!--div class="pagination"-->
+                <div class="pagination" >
                     <ul class="pager">
                     {% if first %}
                         <li><a href="?page=1">1</a></li>

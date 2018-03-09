@@ -1,31 +1,19 @@
 #-*- coding:utf-8 -*-
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView,DetailView
+from django.http import HttpResponse
+from django.views.generic.list import ListView
+import markdown2
 import markdown
-from  markdown.extensions.toc import TocExtension
-from django.utils.text import slugify
 from comments.forms import CommentForm
-from article.models import Article,Category,Tag
+from article.models import Article,Category
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 # Create your views here.
 
 class IndexView(ListView):
-    #没有queryset方法直接指定数据库名即可
-    #model = Article
+    model = Article
     template_name = "index.html"
-    #模型数据传递给模板的名字
     context_object_name = "article_list"
-    paginate_by = 3
-
-    #重写ListView类中的get_queryset方法,该方法是为了获取Model的列表
-    def get_queryset(self):
-        article_list = Article.objects.all()
-        for article in article_list:
-            article.body = markdown.markdown(article.body,extensions=[
-                        'markdown.extensions.extra',
-                        'markdown.extensions.codehilite',
-                        'markdown.extensions.toc',])
-        return article_list
+    paginate_by = 1
 
     def get_context_data(self,**kwargs):
         #在类视图中，传递模板变量字典通过get_context_data函数获得，现在复写该方法
@@ -82,8 +70,8 @@ class IndexView(ListView):
         total_pages = paginator.num_pages
 
         #python3中获得分页页码列表，比如分了四页，则是[1,2,3,4]的列表
-        #python2中返回的xrange对象，并且列表，不能做slice操作,需要list转成列表
-        page_range = list(paginator.page_range)
+        #python2中返回的xrange对象，并且列表，不能做slice操作
+        page_range = paginator.page_range
 
         #range操作是从0开始，页码从1开始，所以在后台代码中要把页码的数量-1进行操作
         if page_number == 1:
@@ -92,22 +80,28 @@ class IndexView(ListView):
             #比如分页页码表是[1,2,3,4],那么获得便是right=[2,3]
             #这里只获得了当前页码后连续两个页码，可以更改这个数字获得更多的页码
             #python中利用range函数，并且使用try对右边界进行边界控制
-            right = page_range[page_number:page_number + 1]
+            try:
+                right = range(page_range[page_number],page_range[page_number + 2])
+            except Exception as e:
+                right = range(page_range[page_number], page_range[total_pages-1])
 
             #如果最右边的页码号比最后一页的页码减去1还小
             #说明最右边的页码号和最后一页的页码间还有其他页码，因此需要显示省略号
-            if right[-1] < total_pages - 1:
-                right_has_more = True
+            try:
+                if right[-1] < total_pages - 1:
+                    right_has_more = True
 
-            #如果最右边的页码号比最后一页的页码号小，说明当前页右边的连续页码中不会显示最后一页页码
-            #所以需要显示最后一页的页码，通过last表示
-            if right[-1] < total_pages:
+                #如果最右边的页码号比最后一页的页码号小，说明当前页右边的连续页码中不会显示最后一页页码
+                #所以需要显示最后一页的页码，通过last表示
+                if right[-1] < total_pages:
+                    last = True
+            except Exception as e:
                 last = True
 
         elif page_number == total_pages:
             #如果当前用户获取的是最后一页的页码，那么就不需要右边的数据
             #只需要请求左边的数据，和上面的内容类似
-            left = page_range[(page_number -2) if (page_number - 2) > 0 else 0:page_number - 1]
+            left = range[page_range[(page_number -2) if (page_number - 2) > 0 else 0],page_range[page_number - 1]]
 
             if left[0] > 2:
                 left_has_more = True
@@ -117,13 +111,19 @@ class IndexView(ListView):
 
         else:
             #如果既不是第一页也不是最后一页，那么就需要结合上面的二者
-            left = page_range[(page_number - 2) if (page_number - 2) > 0 else 0:page_number - 1]
-            right = page_range[page_number:page_number + 1]
+            left = range(page_range[(page_number - 2) if (page_number - 2) > 0 else 0],page_range[page_number - 1])
+            try:
+                right = range(page_range[page_number],page_range[page_number + 1])
+            except Exception as e:
+                right = range(page_range[page_number], page_range[total_pages-1])
 
             #是否需要显示最后一页和最后一页前的省略号
-            if right[-1] < total_pages - 1:
-                right_has_more = True
-            if right[-1] < total_pages:
+            try:
+                if right[-1] < total_pages - 1:
+                    right_has_more = True
+                if right[-1] < total_pages:
+                    last = True
+            except Exception as e:
                 last = True
 
 
@@ -131,7 +131,7 @@ class IndexView(ListView):
             if left[0] > 2:
                 left_has_more = True
             if left[0] > 1:
-                first = True
+                left = True
         context = {
             'left':left,
             'right':right,
@@ -142,7 +142,7 @@ class IndexView(ListView):
                 }
         return context
 
-#简单版获取index
+
 def index(request):
     #article_list = Article.objects.all().order_by('-created_time')
     article_list = Article.objects.all()
@@ -162,84 +162,12 @@ def index(request):
         article_list = paginator.page(paginator.num_pages)
     return render(request,"index.html",context={'article_list':article_list})
 
-class CategoryView(ListView):
-    model = Article
-    template_name = "index.html"
-    context_object_name = "article_list"
-    def get_queryset(self):
-        cate = get_object_or_404(Category, pk=self.kwargs.get('pk'))
-        return super(CategoryView, self).get_queryset().filter(category=cate)
-
-class ArchivesView(ListView):
-    model = Article
-    template_name = "index.html"
-    context_object_name = "article_list"
-    def get_queryset(self):
-        year = self.kwargs.get("year")
-        month = self.kwargs.get("month")
-        return super(ArchivesView, self).get_queryset().filter(created_time__year=year, created_time__month=month)
-
 def archives(request,year,month):
     article_list = Article.objects.filter(created_time__year=year,created_time__month=month).order_by('-created_time')
-    for article in article_list:
-        article.body = markdown.markdown(article.body,extensions=[
-                    'markdown.extensions.extra',
-                    'markdown.extensions.codehilite',
-                    'markdown.extensions.toc',])
     return render(request,"index.html",context={'article_list':article_list})
 
-class ArticleDetailView(DetailView):
-    #以下属性和listView一样
-    #指定数据库
-    model = Article
-    template_name = "detail.html"
-    context_object_name = 'article'
-
-    def get(self, request, *args, **kwargs):
-        #复写get方法是因为每当文章被访问一次，阅读量加1
-        #get方法返回的是一个HttpResponse实例
-        #只有当父类的get方法调用后才有self.object属性，其值为Article模型实例，即被访问文章的article
-        response = super(ArticleDetailView, self).get(request,*args, **kwargs)
-        #self.object是被访问的文章article
-        self.object.increase_views()
-        #视图必须返回一个HttpResponse对象
-        return response
-
-    #重写此方法实现对body的渲染实现锚点
-    def get_object(self, queryset=None):
-        article = super(ArticleDetailView, self).get_object(queryset=None)
-        '''
-        article.body = markdown.markdown(article.body,extensions=[
-            'markdown.extensions.extra',
-            'markdown.extensions.codehilite',
-            'markdown.extensions.toc',
-        ])
-        '''
-        md = markdown.Markdown(extensions=[
-            'markdown.extensions.extra',
-            'markdown.extensions.codehilite',
-            TocExtension(slugify=slugify),
-        ])
-        article.body = md.convert(article.body)
-        article.toc = md.toc
-        return article
-
-    def get_context_data(self, **kwargs):
-        #使用此函数将评论表单，评论列表返回
-        context = super(ArticleDetailView, self).get_context_data(**kwargs)
-        form = CommentForm()
-        comment_list = self.object.comment_set.all()
-        context.update({
-            'form':form,
-            'comment_list':comment_list
-        })
-        return context
-
-#原始的显示单个文章内容,目前属于多余的代码
 def detail(request,pk):
     article = get_object_or_404(Article,pk=pk)
-    #增加阅读量
-    article.increase_views()
     article.body = markdown.markdown(article.body,extensions=[
         'markdown.extensions.extra',
         'markdown.extensions.codehilite',
@@ -254,15 +182,9 @@ def detail(request,pk):
               }
     return render(request,'detail.html',context=context)
 
-#老代码
 def category(request,pk):
     category_name = get_object_or_404(Category,pk=pk)
     article_list = Article.objects.filter(category=category_name).order_by('-created_time')
-    for article in article_list:
-        article.body = markdown.markdown(article.body,extensions=[
-                    'markdown.extensions.extra',
-                    'markdown.extensions.codehilite',
-                    'markdown.extensions.toc',])
     return render(request,"index.html",context={'article_list':article_list})
 
 def search(request):
@@ -273,30 +195,6 @@ def search(request):
             error_msg = "请输入关键词"
             return render(request,'index.html',context={'error_msg':error_msg})
         article_list = Article.objects.filter(title__icontains=question)
-        for article in article_list:
-            article.body = markdown.markdown(article.body,extensions=[
-                        'markdown.extensions.extra',
-                        'markdown.extensions.codehilite',
-                        'markdown.extensions.toc',])
         return render(request,'index.html',context={'error_msg':error_msg,'article_list':article_list})
     else:
         pass
-
-#关于我的个人信息页面
-def about(request):
-    return render(request,'about.html')
-
-#标签云路由处理
-def tag(request,tag_id):
-    tag_name = get_object_or_404(Tag,pk=tag_id)
-    article_list = Article.objects.filter(tag=tag_name).order_by('-created_time')
-    for article in article_list:
-        article.body = markdown.markdown(article.body,extensions=[
-                    'markdown.extensions.extra',
-                    'markdown.extensions.codehilite',
-                    'markdown.extensions.toc',])
-    return render(request,'index.html',context={'article_list':article_list})
-
-def page_not_found(request):
-    #这是处理400页面的函数
-    return render(request,'404.html')

@@ -1,0 +1,21 @@
+
+<script>
+    window.onload = function() {
+        var oBox = document.getElementById('box');
+        var oList = oBox.getElementsByTagName('li');
+        for (var i=0; i<oList.length; i++) {
+            oList[i].style.background = randColor();
+        }
+    }
+
+    function randColor() {
+        var colors = Math.floor(Math.random()*(255*255*255));
+        colors = colors.toString(16);
+        if (colors.length <6) {
+            colors = '0' + colors;
+        }
+        return '#' + colors;
+    }
+</script>
+</body>
+</html>

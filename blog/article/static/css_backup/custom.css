@@ -216,7 +216,6 @@ img {
 .post {
     background: #fff;
     padding: 30px 30px 0;
-    margin-bottom:30px;
 }
 
 .entry-title {
@@ -225,10 +224,6 @@ img {
     margin-bottom: 20px;
     line-height: 1.6;
     padding: 10px 20px 0;
-}
-
-.entry-title a {
-    color:#2edfa3;
 }
 
 .entry-meta {
@@ -264,15 +259,6 @@ img {
     letter-spacing: 0.01em;
     text-align: center;
     margin-top: 20px;
-}
-
-.read-more a {
-    background-color:#6CF;
-    
-}
-
-.read-more a:hover {
-    color:#639;
 }
 
 .cl-effect-14 a {
@@ -351,21 +337,21 @@ img {
 
 .widget {
     background: #fff;
-    padding: 10px 0 0;
+    padding: 30px 0 0;
 }
 
 .widget-title {
     font-size: 1.5em;
-    margin-bottom: 10px;
-    line-height: 1.2;
-    padding: 10px 20px 0;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    padding: 10px 0 0;
     font-weight: 400;
 }
 
 .widget-recent-posts ul {
     padding: 0;
     margin: 0;
-    padding-left: 40px;
+    padding-left: 20px;
 }
 
 .widget-recent-posts ul li {
@@ -388,7 +374,7 @@ img {
 .widget-archives ul {
     padding: 0;
     margin: 0;
-    padding-left: 45px;
+    padding-left: 25px;
 }
 
 .widget-archives ul li {
@@ -411,7 +397,7 @@ img {
 .widget-category ul {
     padding: 0;
     margin: 0;
-    padding-left: 45px;
+    padding-left: 25px;
 }
 
 .widget-category ul li {
@@ -445,10 +431,6 @@ img {
     margin-bottom: 10px;
     padding: 3px 8px;
     border: 1px solid #ddd;
-}
-
-.widget-content div {
-    padding-left: 17px;
 }
 
 .widget-content ul ul {
@@ -920,16 +902,4 @@ img {
 
 .current a {
     color: red;
-}
-
-#footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 60px;/*脚部的高度*/
-    background: #6cf;
-    clear:both;
-}
-body {
-    background-image:url(../img/bg-canvas_bg.jpg);
 }
