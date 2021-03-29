@@ -3,7 +3,7 @@ Landscape-Client==14.12
 Markdown==2.6.8
 MySQL-python==1.2.3
 PAM==0.4.2
-Pygments==2.2.0
+Pygments==2.7.4
 Twisted-Conch==13.2.0
 Twisted-Core==13.2.0
 apt-xapian-index==0.45
