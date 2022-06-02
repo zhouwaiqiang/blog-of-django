@@ -12,7 +12,7 @@ chardet==2.0.1
 colorama==0.2.5
 configobj==4.7.2
 django-bootstrap3==8.2.3
-html5lib==0.999
+html5lib==0.99999999
 markdown2==2.3.4
 pyOpenSSL==0.13
 pyasn1==0.1.7
